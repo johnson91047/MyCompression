@@ -228,6 +228,7 @@ namespace MyCompression
             }
             catch (Exception e)
             {
+                ButtonState(true);
                 MessageBox.Show(e.Message, "錯誤", MessageBoxButtons.OK);
             }
         }
@@ -257,6 +258,7 @@ namespace MyCompression
             }
             catch (Exception e)
             {
+                ButtonState(true);
                 MessageBox.Show(e.Message, "錯誤", MessageBoxButtons.OK);
             }
            
