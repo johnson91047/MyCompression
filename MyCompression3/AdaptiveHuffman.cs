@@ -13,7 +13,7 @@ namespace MyCompression
         public Node NYT;
         public readonly Node Root;
         public Node DecodePointer;
-        public List<Node> Nodes;
+        public Node[] Nodes;
         public Dictionary<byte, Node> Leaves;
 
         public class Node
@@ -44,14 +44,14 @@ namespace MyCompression
             NYT = new Node
             {
                 Weight = 0,
-                Number = MaxNumber
+                Number = MaxNumber - 1
             };
 
             Root = NYT;
             DecodePointer = Root;
             Leaves = new Dictionary<byte, Node>();
-            Nodes = new List<Node>();
-            Nodes.Add(Root);
+            Nodes = new Node[MaxNumber];
+            Nodes[Root.Number] = Root ;
         }
 
         /// <summary>
@@ -141,8 +141,6 @@ namespace MyCompression
             Node highestNode = FindHighestNode(currentNode);
             SwapNode(currentNode, highestNode);
 
-            Nodes = Nodes.OrderBy(node => node.Number).ToList();
-
             currentNode.Weight++;
 
             if(currentNode.Parent != null)
@@ -177,15 +175,12 @@ namespace MyCompression
 
             NYT = newNYT;
 
-            Nodes.Add(newNYT);
-            Nodes.Add(newNode);
+            Nodes[newNYT.Number] = newNYT;
+            Nodes[newNode.Number] = newNode;
             if(!Leaves.ContainsKey(word))
             {
                 Leaves.Add(word, newNode);
             }
-           
-
-            Nodes = Nodes.OrderBy(node => node.Number).ToList();
 
             Update(newNode);
         }
@@ -229,7 +224,11 @@ namespace MyCompression
             b.Number = a.Number;
             a.Number = bNum;
 
-            if(aIsRight)
+            Node temp = Nodes[a.Number];
+            Nodes[a.Number] = Nodes[b.Number];
+            Nodes[b.Number] = temp;
+
+            if (aIsRight)
             {
                 aParent.Right = b;
                 b.Parent = aParent;
