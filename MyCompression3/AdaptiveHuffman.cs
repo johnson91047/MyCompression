@@ -9,7 +9,7 @@ namespace MyCompression
 {
     public class AdaptiveHuffman
     {
-        public const int MaxNumber = 10000;
+        public const int MaxNumber = 1000;
         public Node NYT;
         public readonly Node Root;
         public Node DecodePointer;
@@ -31,11 +31,6 @@ namespace MyCompression
                 Right = null;
                 Parent = null;
                 Word = 0;
-            }
-
-            public Node GetSibling()
-            {
-                return Parent.Left == this ? Parent.Right : Parent.Left;
             }
         }
 

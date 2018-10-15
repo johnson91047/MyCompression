@@ -126,7 +126,13 @@ namespace MyCompression
                 return;
             }
 
-            if(string.IsNullOrEmpty(Path.GetExtension(FileName)))
+            if (string.IsNullOrEmpty(FileName))
+            {
+                MessageBox.Show("請輸入檔案名稱", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(Path.GetExtension(FileName)))
             {
                 MessageBox.Show("請指定檔案名稱的副檔名", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
