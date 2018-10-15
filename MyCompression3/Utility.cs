@@ -5,24 +5,30 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
 
-namespace MyCompression3
+namespace MyCompression
 {
     public static class Utility
     {
-        public static byte BoolArrayToByte(bool[] source)
+        public static byte[] BoolArrayToByteArray(bool[] source)
         {
-            byte result = 0;
-            int index = 0;
-
-            foreach (bool b in source)
+            List<byte> result = new List<byte>();
+            int times = source.Length % 8 == 0 ? source.Length / 8 : source.Length / 8 + 1;
+            for (int i = 0; i < times ; i++)
             {
-                if (b)
-                    result |= (byte)(1 << (7 - index));
+                byte temp = 0;
+                for (int j = 0; j < 8 && i*8+j < source.Length; j++)
+                {
 
-                index++;
+                    if (source[i*8+j])
+                    {
+                        temp |= (byte)(1 << (j));
+                    }
+                }
+                result.Add(temp);
             }
 
-            return result;
+
+            return result.ToArray();
         }
 
         public static byte[] BitArrayToByteArray(BitArray bitArray)

@@ -1,6 +1,6 @@
-﻿namespace MyCompression3
+﻿namespace MyCompression
 {
-    partial class Form1
+    partial class Main
     {
         /// <summary>
         /// 設計工具所需的變數。
@@ -40,6 +40,7 @@
             this.OpenDialogBtn2 = new MetroFramework.Controls.MetroButton();
             this.metroLabel4 = new MetroFramework.Controls.MetroLabel();
             this.metroLabel5 = new MetroFramework.Controls.MetroLabel();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.SuspendLayout();
             // 
             // SourceFilePathTextBox
@@ -114,7 +115,7 @@
             this.FileNameTextBox.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
             this.FileNameTextBox.Location = new System.Drawing.Point(150, 222);
             this.FileNameTextBox.Name = "FileNameTextBox";
-            this.FileNameTextBox.Size = new System.Drawing.Size(180, 23);
+            this.FileNameTextBox.Size = new System.Drawing.Size(419, 23);
             this.FileNameTextBox.TabIndex = 5;
             this.FileNameTextBox.Theme = MetroFramework.MetroThemeStyle.Dark;
             // 
@@ -155,9 +156,9 @@
             this.metroLabel4.FontWeight = MetroFramework.MetroLabelWeight.Regular;
             this.metroLabel4.Location = new System.Drawing.Point(150, 185);
             this.metroLabel4.Name = "metroLabel4";
-            this.metroLabel4.Size = new System.Drawing.Size(213, 19);
+            this.metroLabel4.Size = new System.Drawing.Size(197, 15);
             this.metroLabel4.TabIndex = 10;
-            this.metroLabel4.Text = "(留白表示與來源檔案資料夾相同)";
+            this.metroLabel4.Text = "(留白表示輸出至來源檔案資料夾)";
             this.metroLabel4.Theme = MetroFramework.MetroThemeStyle.Dark;
             // 
             // metroLabel5
@@ -167,12 +168,12 @@
             this.metroLabel5.FontWeight = MetroFramework.MetroLabelWeight.Regular;
             this.metroLabel5.Location = new System.Drawing.Point(150, 248);
             this.metroLabel5.Name = "metroLabel5";
-            this.metroLabel5.Size = new System.Drawing.Size(199, 19);
+            this.metroLabel5.Size = new System.Drawing.Size(424, 15);
             this.metroLabel5.TabIndex = 11;
-            this.metroLabel5.Text = "(留白表示與來源檔案名稱相同)";
+            this.metroLabel5.Text = "(壓縮時留白表示與來源檔案名稱相同, 解壓縮時請完整填入檔名及副檔名)";
             this.metroLabel5.Theme = MetroFramework.MetroThemeStyle.Dark;
             // 
-            // Form1
+            // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -189,7 +190,7 @@
             this.Controls.Add(this.metroLabel1);
             this.Controls.Add(this.DestinationFolderPathTextBox);
             this.Controls.Add(this.SourceFilePathTextBox);
-            this.Name = "Form1";
+            this.Name = "Main";
             this.Resizable = false;
             this.ShadowType = MetroFramework.Forms.MetroForm.MetroFormShadowType.DropShadow;
             this.Text = "My Compression";
@@ -213,6 +214,7 @@
         private MetroFramework.Controls.MetroButton OpenDialogBtn2;
         private MetroFramework.Controls.MetroLabel metroLabel4;
         private MetroFramework.Controls.MetroLabel metroLabel5;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
     }
 }
 

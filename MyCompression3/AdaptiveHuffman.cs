@@ -4,7 +4,7 @@ using System.Collections;
 using System.Linq;
 using System.IO;
 
-namespace MyCompression3
+namespace MyCompression
 {
     public class AdaptiveHuffman
     {
@@ -12,8 +12,8 @@ namespace MyCompression3
         public Node NYT;
         public readonly Node Root;
         public Node DecodePointer;
-        public List<Node> Leaves;
         public List<Node> Nodes;
+        public Dictionary<byte, Node> Leaves;
 
         public class Node
         {
@@ -48,28 +48,35 @@ namespace MyCompression3
 
             Root = NYT;
             DecodePointer = Root;
-            Leaves = new List<Node>();
+            Leaves = new Dictionary<byte, Node>();
             Nodes = new List<Node>();
             Nodes.Add(Root);
         }
 
-        public BitArray Encode(byte word)
+        /// <summary>
+        /// compress file
+        /// </summary>
+        /// <param name="word"></param>
+        /// <returns></returns>
+        public bool[] Encode(byte word)
         {
-            BitArray code;
-            if (FindNode(word, out Node existNode))
+            bool[] code;
+            if (Leaves.ContainsKey(word))
             {
+                Node existNode = Leaves[word];
                 code = GetCode(existNode);
                 Update(existNode);
             }
             else
             {
-                BitArray escapeCode = GetCode(NYT);
+                bool[] escapeCode = GetCode(NYT);
                 BitArray wordBits = new BitArray(new byte[] { word });
-                bool[] bits = new bool[escapeCode.Count + 8];
+                code = new bool[escapeCode.Length + 8];
 
-                escapeCode.CopyTo(bits, 0);
-                wordBits.CopyTo(bits, escapeCode.Count);
-                code = new BitArray(bits);
+                escapeCode.CopyTo(code, 0);
+                wordBits.CopyTo(code, escapeCode.Length);
+
+                code.Reverse();
 
                 NewNode(word);
             } 
@@ -77,24 +84,28 @@ namespace MyCompression3
             return code;
         }
 
+        /// <summary>
+        /// decode from encoded file
+        /// </summary>
+        /// <param name="contents"></param>
+        /// <returns></returns>
         public List<byte> Decode(List<byte> contents)
         {
             List<byte> result = new List<byte>();
             List<bool> decodedContent = new List<bool>();
-            BitArray codes = new BitArray(contents.ToArray());
+            BitArray bits = new BitArray(contents.ToArray());
 
-            foreach(var code in codes)
+            foreach(bool bit in bits)
             {
-                bool codeValue = Convert.ToBoolean(code);
 
                 // next byte is a raw data
                 if(DecodePointer == NYT)
                 {
-                    decodedContent.Add(codeValue);
+                    decodedContent.Add(bit);
 
                     if(decodedContent.Count == 8)
                     {
-                        byte decodedResult = Utility.BoolArrayToByte(decodedContent.ToArray());
+                        byte decodedResult = Utility.BoolArrayToByteArray(decodedContent.ToArray())[0];
                         result.Add(decodedResult);
                         NewNode(decodedResult);
                         decodedContent.Clear();
@@ -104,12 +115,12 @@ namespace MyCompression3
                     continue;
                 }
 
-                DecodePointer = codeValue ? DecodePointer.Left : DecodePointer.Right;
+                DecodePointer = bit ? DecodePointer.Left : DecodePointer.Right;
 
-                if(DecodePointer.Left == null && DecodePointer != NYT)
+                if((DecodePointer.Left == null || DecodePointer.Right == null)  && DecodePointer != NYT)
                 {
                     result.Add(DecodePointer.Word);
-                    Update(DecodePointer);
+                    Update(Leaves[DecodePointer.Word]);
                     DecodePointer = Root;
                 }
             }
@@ -117,18 +128,30 @@ namespace MyCompression3
             return result;
         }
 
-        private void Update(Node node)
+        /// <summary>
+        /// update tree
+        /// </summary>
+        /// <param name="currentNode"></param>
+        private void Update(Node currentNode)
         {
-            Node highestNode = FindHighestNode(node);
-            SwapNode(node, highestNode);
-            node.Weight++;
-            if(node.Parent != null)
+            // Do swap
+            Node highestNode = FindHighestNode(currentNode);
+            SwapNode(currentNode, highestNode);
+
+            Nodes = Nodes.OrderBy(node => node.Number).ToList();
+
+            currentNode.Weight++;
+
+            if(currentNode.Parent != null)
             {
-                Update(node.Parent);
+                Update(currentNode.Parent);
             }
         }
 
-
+        /// <summary>
+        /// create new node from NYT node
+        /// </summary>
+        /// <param name="word">the new data</param>
         private void NewNode(byte word)
         {
             Node newNYT = new Node
@@ -153,39 +176,87 @@ namespace MyCompression3
 
             Nodes.Add(newNYT);
             Nodes.Add(newNode);
-            Leaves.Add(newNode);
+            if(!Leaves.ContainsKey(word))
+            {
+                Leaves.Add(word, newNode);
+            }
+           
 
             Nodes = Nodes.OrderBy(node => node.Number).ToList();
 
             Update(newNode);
         }
 
-        private bool FindNode(byte word, out Node resultNode)
-        {
-            foreach (Node node in Leaves)
-            {
-                if (node.Word == word)
-                {
-                    resultNode = node;
-                    return true;
-                }
-            }
-            resultNode = null;
-            return false;
-        }
-
+        /// <summary>
+        /// swap two node and subtrees
+        /// </summary>
+        /// <param name="a">node a</param>
+        /// <param name="b">node b</param>
         private void SwapNode(Node a, Node b)
         {
-            Node temp = a;
-            a = b;
-            b = temp;
+            if (a.Parent == b || b.Parent == a || a == Root || b == Root || a == b)
+            {
+                return;
+            }
+
+            if(a.Parent.Left == a && b.Parent.Left == b)
+            {
+                Swap(a.Parent.Left, b.Parent.Left, a.Parent, b.Parent, false, false);
+            }
+            else if (a.Parent.Left == a && b.Parent.Right == b)
+            {
+                Swap(a.Parent.Left, b.Parent.Right, a.Parent, b.Parent, false, true);
+            }
+            else if (a.Parent.Right == a && b.Parent.Left == b)
+            {
+                Swap(a.Parent.Right, b.Parent.Left, a.Parent, b.Parent, true, false);
+            }
+            else if (a.Parent.Right == a && b.Parent.Right == b)
+            {
+                Swap(a.Parent.Right, b.Parent.Right, a.Parent, b.Parent, true, true);
+            }
+
         }
 
+        private void Swap(Node a, Node b, Node aParent, Node bParent,bool aIsRight, bool bIsRight)
+        {
+            int bNum = b.Number;
+            b.Number = a.Number;
+            a.Number = bNum;
+
+            if(aIsRight)
+            {
+                aParent.Right = b;
+                b.Parent = aParent;
+            }
+            else
+            {
+                aParent.Left = b;
+                b.Parent = aParent;
+            }
+
+            if(bIsRight)
+            {
+                bParent.Right = a;
+                a.Parent = bParent;
+            }
+            else
+            {
+                bParent.Left = a;
+                a.Parent = bParent;
+            }
+        }
+
+        /// <summary>
+        /// find the highest node in the same block with node
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
         private Node FindHighestNode(Node node)
         {
             Node highestNode = null;
             List<Node> nodes = Nodes.ToList();
-            nodes.Reverse();
+            //nodes.Reverse();
             int index = nodes.IndexOf(node);
 
             for( int i = index; i < nodes.Count && nodes[i].Weight == node.Weight ; i++)
@@ -196,7 +267,12 @@ namespace MyCompression3
             return highestNode;
         }
 
-        private BitArray GetCode(Node node)
+        /// <summary>
+        /// get the huffman code of the node, backtracking from the node to the root
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        private bool[] GetCode(Node node)
         {
             List<bool> codes = new List<bool>();
             while(node != Root)
@@ -206,10 +282,7 @@ namespace MyCompression3
             }
 
             codes.Reverse();
-
-            BitArray bitArray = new BitArray(codes.ToArray());
-
-            return bitArray;
+            return codes.ToArray();
         }
     }
 }
