@@ -65,12 +65,12 @@ namespace MyCompression
             }
             else
             {
-                bool[] escapeCode = GetCode(NYT);
+                bool[] NYTCode = GetCode(NYT);
                 BitArray wordBits = new BitArray(new byte[] { word });
-                code = new bool[escapeCode.Length + Utility.ByteSize];
+                code = new bool[NYTCode.Length + Utility.ByteSize];
 
-                escapeCode.CopyTo(code, 0);
-                wordBits.CopyTo(code, escapeCode.Length);
+                NYTCode.CopyTo(code, 0);
+                wordBits.CopyTo(code, NYTCode.Length);
 
                 code.Reverse();
 
