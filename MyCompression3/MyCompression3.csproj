@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{67A90703-1BDD-43F6-A425-6AAA015A0838}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>MyCompression3</RootNamespace>
-    <AssemblyName>MyCompression3</AssemblyName>
+    <RootNamespace>MyCompression</RootNamespace>
+    <AssemblyName>MyCompression</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
