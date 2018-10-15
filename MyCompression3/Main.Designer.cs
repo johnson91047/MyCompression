@@ -41,6 +41,7 @@
             this.metroLabel4 = new MetroFramework.Controls.MetroLabel();
             this.metroLabel5 = new MetroFramework.Controls.MetroLabel();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.progressBar = new MetroFramework.Controls.MetroProgressBar();
             this.SuspendLayout();
             // 
             // SourceFilePathTextBox
@@ -68,11 +69,11 @@
             this.metroLabel1.AutoSize = true;
             this.metroLabel1.FontSize = MetroFramework.MetroLabelSize.Tall;
             this.metroLabel1.FontWeight = MetroFramework.MetroLabelWeight.Regular;
-            this.metroLabel1.Location = new System.Drawing.Point(23, 98);
+            this.metroLabel1.Location = new System.Drawing.Point(18, 100);
             this.metroLabel1.Name = "metroLabel1";
-            this.metroLabel1.Size = new System.Drawing.Size(97, 25);
+            this.metroLabel1.Size = new System.Drawing.Size(88, 25);
             this.metroLabel1.TabIndex = 2;
-            this.metroLabel1.Text = "Source File";
+            this.metroLabel1.Text = "來源檔案";
             this.metroLabel1.Theme = MetroFramework.MetroThemeStyle.Dark;
             // 
             // metroLabel2
@@ -80,11 +81,11 @@
             this.metroLabel2.AutoSize = true;
             this.metroLabel2.FontSize = MetroFramework.MetroLabelSize.Tall;
             this.metroLabel2.FontWeight = MetroFramework.MetroLabelWeight.Regular;
-            this.metroLabel2.Location = new System.Drawing.Point(23, 159);
+            this.metroLabel2.Location = new System.Drawing.Point(18, 159);
             this.metroLabel2.Name = "metroLabel2";
-            this.metroLabel2.Size = new System.Drawing.Size(102, 25);
+            this.metroLabel2.Size = new System.Drawing.Size(107, 25);
             this.metroLabel2.TabIndex = 3;
-            this.metroLabel2.Text = "Destination";
+            this.metroLabel2.Text = "目標資料夾";
             this.metroLabel2.Theme = MetroFramework.MetroThemeStyle.Dark;
             // 
             // OpenFileDialogBtn
@@ -102,11 +103,11 @@
             this.metroLabel3.AutoSize = true;
             this.metroLabel3.FontSize = MetroFramework.MetroLabelSize.Tall;
             this.metroLabel3.FontWeight = MetroFramework.MetroLabelWeight.Regular;
-            this.metroLabel3.Location = new System.Drawing.Point(23, 222);
+            this.metroLabel3.Location = new System.Drawing.Point(18, 222);
             this.metroLabel3.Name = "metroLabel3";
-            this.metroLabel3.Size = new System.Drawing.Size(91, 25);
+            this.metroLabel3.Size = new System.Drawing.Size(126, 25);
             this.metroLabel3.TabIndex = 6;
-            this.metroLabel3.Text = "FIle Name";
+            this.metroLabel3.Text = "目標檔案名稱";
             this.metroLabel3.Theme = MetroFramework.MetroThemeStyle.Dark;
             // 
             // FileNameTextBox
@@ -173,11 +174,21 @@
             this.metroLabel5.Text = "(壓縮時留白表示與來源檔案名稱相同, 解壓縮時請完整填入檔名及副檔名)";
             this.metroLabel5.Theme = MetroFramework.MetroThemeStyle.Dark;
             // 
+            // progressBar
+            // 
+            this.progressBar.Location = new System.Drawing.Point(23, 303);
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(397, 29);
+            this.progressBar.Style = MetroFramework.MetroColorStyle.Green;
+            this.progressBar.TabIndex = 12;
+            this.progressBar.Theme = MetroFramework.MetroThemeStyle.Dark;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(672, 355);
+            this.Controls.Add(this.progressBar);
             this.Controls.Add(this.metroLabel5);
             this.Controls.Add(this.metroLabel4);
             this.Controls.Add(this.OpenDialogBtn2);
@@ -215,6 +226,7 @@
         private MetroFramework.Controls.MetroLabel metroLabel4;
         private MetroFramework.Controls.MetroLabel metroLabel5;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private MetroFramework.Controls.MetroProgressBar progressBar;
     }
 }
 

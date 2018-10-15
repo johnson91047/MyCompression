@@ -71,38 +71,35 @@ namespace MyCompression
             }
         }
 
+        private BackgroundWorker _compressProcess;
+        private BackgroundWorker _deCompressProcess;
+        private delegate void SetProgressBarValue(int max);
+        private delegate void SetButtonState(bool state);
+        private SetProgressBarValue SetValueDelegate;
+        private SetButtonState SetButtonStateDelegate;
+
         public Main()
         {
+            // setup background worker
+            _compressProcess = new BackgroundWorker();
+            _compressProcess.DoWork += (handler, sender) => { Compress(); };
+            _compressProcess.RunWorkerCompleted += ( sender, handler ) => { ProgressComplete(); };
+            _compressProcess.ProgressChanged += ProgressChanged;
+            _compressProcess.WorkerReportsProgress = true;
+
+            _deCompressProcess = new BackgroundWorker();
+            _deCompressProcess.DoWork += (handler, sender) => { DeCompress(); };
+            _deCompressProcess.RunWorkerCompleted += ( sender, handler ) => { ProgressComplete(); };
+            _deCompressProcess.ProgressChanged += ProgressChanged;
+            _deCompressProcess.WorkerReportsProgress = true;
+
             InitializeComponent();
+
+            SetValueDelegate += SetProgressbar;
+            SetButtonStateDelegate += ButtonState;
         }
 
-        private string OpenFile()
-        {
-            using (OpenFileDialog dialog = new OpenFileDialog())
-            {
-                dialog.InitialDirectory = Directory.GetCurrentDirectory();
-                if (dialog.ShowDialog() == DialogResult.OK)
-                {
-                    return dialog.FileName;
-                }
-            }
-
-            return string.Empty;
-        }
-
-        private string OpenDirectory()
-        {
-            using (FolderBrowserDialog dialog = new FolderBrowserDialog())
-            {
-                if (dialog.ShowDialog() == DialogResult.OK)
-                {
-                    return dialog.SelectedPath;
-                }
-            }
-
-            return string.Empty;
-        }
-
+        #region UI Events
         private void OpenFileDialogBtn_Click(object sender, EventArgs e)
         {
             SourceFilePath = OpenFile();
@@ -112,6 +109,8 @@ namespace MyCompression
         {
             DestinationFolderPath = OpenDirectory();
         }
+
+
 
         private void DeCompressBtn_Click(object sender, EventArgs e)
         {
@@ -140,7 +139,7 @@ namespace MyCompression
                 switch (result)
                 {
                     case DialogResult.Yes:
-                        DeCompress();
+                        _deCompressProcess.RunWorkerAsync();
                         break;
                     case DialogResult.No:
                         return;
@@ -148,7 +147,7 @@ namespace MyCompression
             }
             else
             {
-                DeCompress();
+                _deCompressProcess.RunWorkerAsync();
             }
         }
 
@@ -167,7 +166,7 @@ namespace MyCompression
                 switch(result)
                 {
                     case DialogResult.Yes:
-                        Compress();
+                        _compressProcess.RunWorkerAsync();
                         break;
                     case DialogResult.No:
                         return;
@@ -175,60 +174,141 @@ namespace MyCompression
             }
             else
             {
-                Compress();
+                _compressProcess.RunWorkerAsync();
             }
         }
 
+        # endregion
+
+        private string OpenFile()
+        {
+            using (OpenFileDialog dialog = new OpenFileDialog())
+            {
+                dialog.InitialDirectory = Directory.GetCurrentDirectory();
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    return dialog.FileName;
+                }
+            }
+
+            return string.Empty;
+        }
+
+        private string OpenDirectory()
+        {
+            using (FolderBrowserDialog dialog = new FolderBrowserDialog())
+            {
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    return dialog.SelectedPath;
+                }
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// do decoding
+        /// </summary>
         private void DeCompress()
         {
             try
             {
-                ProgressionController.Show();
+                ButtonState(false);
 
                 AdaptiveHuffman adaptiveHuffman = new AdaptiveHuffman();
-                List<byte> contents = File.ReadAllBytes(SourceFilePath).ToList();
+                byte[] contents = File.ReadAllBytes(SourceFilePath);
 
-                List<byte> writeBuffer = adaptiveHuffman.Decode(contents);
+                SetProgressbar(contents.Length);
+
+                List<byte> writeBuffer = adaptiveHuffman.Decode(contents,_deCompressProcess);
 
                 File.WriteAllBytes(DeCompressDestinationFilePath, writeBuffer.ToArray());
 
-                ProgressionController.Abort();
-                MessageBox.Show("解壓縮完成!", "成功", MessageBoxButtons.OK);
             }
             catch (Exception e)
             {
-                ProgressionController.Abort();
                 MessageBox.Show(e.Message, "錯誤", MessageBoxButtons.OK);
             }
         }
 
+        /// <summary>
+        /// do encoding
+        /// </summary>
         private void Compress()
         {
             try
             {
-                ProgressionController.Show();
-
+                ButtonState(false);
                 AdaptiveHuffman adaptiveHuffman = new AdaptiveHuffman();
                 List<bool> writeBuffer = new List<bool>();
                 byte[] contents = File.ReadAllBytes(SourceFilePath);
+                SetProgressbar(contents.Length);
 
-                foreach (byte content in contents)
+                for (int i = 0; i < contents.Length; i++)
                 {
-                    bool[] code = adaptiveHuffman.Encode(content);
+                    bool[] code = adaptiveHuffman.Encode(contents[i]);
                     writeBuffer.AddRange(code);
+                    _compressProcess.ReportProgress(i);
                 }
 
                 File.WriteAllBytes(CompressDestinationFilePath, Utility.BoolArrayToByteArray(writeBuffer.ToArray()));
 
-                ProgressionController.Abort();
-                MessageBox.Show("壓縮完成!", "成功", MessageBoxButtons.OK);
             }
             catch (Exception e)
             {
-                ProgressionController.Abort();
                 MessageBox.Show(e.Message, "錯誤", MessageBoxButtons.OK);
             }
            
         }
+
+        #region UI
+        private void ProgressComplete()
+        {
+            MessageBox.Show("工作完成!", "成功", MessageBoxButtons.OK);
+            progressBar.Value = 0;
+            ButtonState(true);
+        }
+
+        private void ProgressChanged(object sender, ProgressChangedEventArgs args)
+        {
+            progressBar.Value = args.ProgressPercentage;
+        }
+
+        private void SetProgressbar(int max)
+        {
+            if (progressBar.InvokeRequired)
+            {
+                progressBar.Invoke(SetValueDelegate,max);
+            }
+            else
+            {
+                progressBar.Maximum = max;
+                progressBar.Minimum = 0;
+            }
+        }
+
+        private void ButtonState(bool state)
+        {
+
+            if (DeCompressBtn.InvokeRequired)
+            {
+                DeCompressBtn.Invoke(SetButtonStateDelegate, state);
+            }
+            else
+            {
+                DeCompressBtn.Enabled = state;
+            }
+
+            if (CompressBtn.InvokeRequired)
+            {
+                CompressBtn.Invoke(SetButtonStateDelegate, state);
+            }
+            else
+            {
+                CompressBtn.Enabled = state;
+            }
+        }
+        # endregion
     }
 }
