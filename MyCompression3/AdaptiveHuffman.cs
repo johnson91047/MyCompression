@@ -256,10 +256,8 @@ namespace MyCompression
             Node highestNode = null;
             List<Node> nodes = Nodes.ToList();
 
-            int index = nodes.IndexOf(node);
-
             //find the highest node that have the same weight of current node
-            for( int i = index; i < nodes.Count && nodes[i].Weight == node.Weight ; i++)
+            for( int i = node.Number ; i < nodes.Count && nodes[i].Weight == node.Weight ; i++)
             {
                 highestNode = nodes[i];
             }
