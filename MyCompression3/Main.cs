@@ -186,7 +186,6 @@ namespace MyCompression
         {
             using (OpenFileDialog dialog = new OpenFileDialog())
             {
-                dialog.InitialDirectory = Directory.GetCurrentDirectory();
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
                     return dialog.FileName;
