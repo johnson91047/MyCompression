@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
 using System.ComponentModel;
-using System.IO;
 
 namespace MyCompression
 {
     public class AdaptiveHuffman
     {
-        public const int MaxNumber = 1000;
-        public Node NYT;
-        public readonly Node Root;
-        public Node DecodePointer;
-        public Node[] Nodes;
-        public Dictionary<byte, Node> Leaves;
+        private const int MaxNumber = 1000;
+        private Node _nyt;
+        private readonly Node _root;
+        private Node _decodePointer;
+        private readonly Node[] _nodes;
+        private readonly Dictionary<byte, Node> _leaves;
 
         public class Node
         {
@@ -36,17 +34,17 @@ namespace MyCompression
 
         public AdaptiveHuffman()
         {
-            NYT = new Node
+            _nyt = new Node
             {
                 Weight = 0,
                 Number = MaxNumber - 1
             };
 
-            Root = NYT;
-            DecodePointer = Root;
-            Leaves = new Dictionary<byte, Node>();
-            Nodes = new Node[MaxNumber];
-            Nodes[Root.Number] = Root ;
+            _root = _nyt;
+            _decodePointer = _root;
+            _leaves = new Dictionary<byte, Node>();
+            _nodes = new Node[MaxNumber];
+            _nodes[_root.Number] = _root ;
         }
 
         /// <summary>
@@ -57,22 +55,20 @@ namespace MyCompression
         public bool[] Encode(byte word)
         {
             bool[] code;
-            if (Leaves.ContainsKey(word))
+            if (_leaves.ContainsKey(word))
             {
-                Node existNode = Leaves[word];
+                Node existNode = _leaves[word];
                 code = GetCode(existNode);
                 Update(existNode);
             }
             else
             {
-                bool[] NYTCode = GetCode(NYT);
+                bool[] nytCode = GetCode(_nyt);
                 BitArray wordBits = new BitArray(new byte[] { word });
-                code = new bool[NYTCode.Length + Utility.ByteSize];
+                code = new bool[nytCode.Length + Utility.ByteSize];
 
-                NYTCode.CopyTo(code, 0);
-                wordBits.CopyTo(code, NYTCode.Length);
-
-                code.Reverse();
+                nytCode.CopyTo(code, 0);
+                wordBits.CopyTo(code, nytCode.Length);
 
                 NewNode(word);
             } 
@@ -84,6 +80,7 @@ namespace MyCompression
         /// decode from encoded file
         /// </summary>
         /// <param name="contents"></param>
+        /// <param name="worker">to report progression</param>
         /// <returns></returns>
         public List<byte> Decode(byte[] contents,BackgroundWorker worker)
         {
@@ -95,7 +92,7 @@ namespace MyCompression
             {
 
                 // next byte is a raw data
-                if(DecodePointer == NYT)
+                if(_decodePointer == _nyt)
                 {
                     decodedContent.Add(bits[i]);
 
@@ -105,19 +102,20 @@ namespace MyCompression
                         result.Add(decodedResult);
                         NewNode(decodedResult);
                         decodedContent.Clear();
-                        DecodePointer = Root;
+                        _decodePointer = _root;
                     }
 
                     continue;
                 }
 
-                DecodePointer = bits[i] ? DecodePointer.Left : DecodePointer.Right;
+                _decodePointer = bits[i] ? _decodePointer.Left : _decodePointer.Right;
 
-                if((DecodePointer.Left == null || DecodePointer.Right == null)  && DecodePointer != NYT)
+
+                if((_decodePointer.Left == null || _decodePointer.Right == null)  && _decodePointer != _nyt)
                 {
-                    result.Add(DecodePointer.Word);
-                    Update(Leaves[DecodePointer.Word]);
-                    DecodePointer = Root;
+                    result.Add(_decodePointer.Word);
+                    Update(_leaves[_decodePointer.Word]);
+                    _decodePointer = _root;
                 }
 
                 worker.ReportProgress(i/Utility.ByteSize);
@@ -153,28 +151,28 @@ namespace MyCompression
             Node newNYT = new Node
             {
                 Weight = 0,
-                Number = NYT.Number - 2,
-                Parent = NYT
+                Number = _nyt.Number - 2,
+                Parent = _nyt
             };
 
             Node newNode = new Node
             {
                 Weight = 0,
-                Parent = NYT,
-                Number = NYT.Number - 1,
+                Parent = _nyt,
+                Number = _nyt.Number - 1,
                 Word = word
             };
 
-            NYT.Left = newNYT;
-            NYT.Right = newNode;
+            _nyt.Left = newNYT;
+            _nyt.Right = newNode;
 
-            NYT = newNYT;
+            _nyt = newNYT;
 
-            Nodes[newNYT.Number] = newNYT;
-            Nodes[newNode.Number] = newNode;
-            if(!Leaves.ContainsKey(word))
+            _nodes[newNYT.Number] = newNYT;
+            _nodes[newNode.Number] = newNode;
+            if(!_leaves.ContainsKey(word))
             {
-                Leaves.Add(word, newNode);
+                _leaves.Add(word, newNode);
             }
 
             Update(newNode);
@@ -188,7 +186,7 @@ namespace MyCompression
         private void SwapNode(Node a, Node b)
         {
             // ignored case
-            if (a.Parent == b || b.Parent == a || a == Root || b == Root || a == b)
+            if (a.Parent == b || b.Parent == a || a == _root || b == _root || a == b)
             {
                 return;
             }
@@ -219,9 +217,9 @@ namespace MyCompression
             b.Number = a.Number;
             a.Number = bNum;
 
-            Node temp = Nodes[a.Number];
-            Nodes[a.Number] = Nodes[b.Number];
-            Nodes[b.Number] = temp;
+            Node temp = _nodes[a.Number];
+            _nodes[a.Number] = _nodes[b.Number];
+            _nodes[b.Number] = temp;
 
             if (aIsRight)
             {
@@ -254,7 +252,7 @@ namespace MyCompression
         private Node FindHighestNode(Node node)
         {
             Node highestNode = null;
-            List<Node> nodes = Nodes.ToList();
+            List<Node> nodes = _nodes.ToList();
 
             //find the highest node that have the same weight of current node
             for( int i = node.Number ; i < nodes.Count && nodes[i].Weight == node.Weight ; i++)
@@ -273,9 +271,9 @@ namespace MyCompression
         private bool[] GetCode(Node node)
         {
             List<bool> codes = new List<bool>();
-            while(node != Root)
+            while(node != _root)
             {
-                codes.Add(node == node.Parent.Left ? true : false);
+                codes.Add(node == node.Parent.Left);
                 node = node.Parent;
             }
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Collections;
 
 namespace MyCompression
@@ -31,13 +27,6 @@ namespace MyCompression
 
 
             return result.ToArray();
-        }
-
-        public static byte[] BitArrayToByteArray(BitArray bitArray)
-        {
-            byte[] result = new byte[(bitArray.Length - 1) / ByteSize + 1];
-            bitArray.CopyTo(result, 0);
-            return result;
         }
     }
 }

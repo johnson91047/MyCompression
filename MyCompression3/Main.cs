@@ -1,13 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Collections;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using MetroFramework.Forms;
 
@@ -15,27 +9,27 @@ namespace MyCompression
 {
     public partial class Main : MetroForm
     {
-        public string SourceFilePath
+        private string SourceFilePath
         {
             get => SourceFilePathTextBox.Text;
             set => SourceFilePathTextBox.Text = value;
         }
 
-        public string DestinationFolderPath
+        private string DestinationFolderPath
         {
             get => DestinationFolderPathTextBox.Text;
             set => DestinationFolderPathTextBox.Text = value;
         }
 
-        public string FileName
+        private string FileName
         {
             get => FileNameTextBox.Text;
             set => FileNameTextBox.Text = value;
         }
 
-        public const string MyExtension = ".mycom";
+        private const string MyExtension = ".mycom";
 
-        public string CompressDestinationFilePath
+        private string CompressDestinationFilePath
         {
             get {
                 string folder = DestinationFolderPath;
@@ -55,7 +49,7 @@ namespace MyCompression
             }
         }
 
-        public string DeCompressDestinationFilePath
+        private string DeCompressDestinationFilePath
         {
             get
             {
@@ -71,12 +65,14 @@ namespace MyCompression
             }
         }
 
-        private BackgroundWorker _compressProcess;
-        private BackgroundWorker _deCompressProcess;
+        private readonly BackgroundWorker _compressProcess;
+        private readonly BackgroundWorker _deCompressProcess;
+
+        //delegate for other process 
         private delegate void SetProgressBarValue(int max);
         private delegate void SetButtonState(bool state);
-        private SetProgressBarValue SetValueDelegate;
-        private SetButtonState SetButtonStateDelegate;
+        private readonly SetProgressBarValue _setValueDelegate;
+        private readonly SetButtonState _setButtonStateDelegate;
 
         public Main()
         {
@@ -95,8 +91,8 @@ namespace MyCompression
 
             InitializeComponent();
 
-            SetValueDelegate += SetProgressbar;
-            SetButtonStateDelegate += ButtonState;
+            _setValueDelegate += SetProgressbar;
+            _setButtonStateDelegate += ButtonState;
         }
 
         #region UI Events
@@ -235,7 +231,7 @@ namespace MyCompression
             catch (Exception e)
             {
                 ButtonState(true);
-                MessageBox.Show(e.Message, "錯誤", MessageBoxButtons.OK);
+                MessageBox.Show(e.Message, @"錯誤", MessageBoxButtons.OK);
             }
         }
 
@@ -265,7 +261,7 @@ namespace MyCompression
             catch (Exception e)
             {
                 ButtonState(true);
-                MessageBox.Show(e.Message, "錯誤", MessageBoxButtons.OK);
+                MessageBox.Show(e.Message, @"錯誤", MessageBoxButtons.OK);
             }
            
         }
@@ -273,7 +269,7 @@ namespace MyCompression
         #region UI
         private void ProgressComplete()
         {
-            MessageBox.Show("工作完成!", "成功", MessageBoxButtons.OK);
+            MessageBox.Show(@"工作完成!", @"成功", MessageBoxButtons.OK);
             progressBar.Value = 0;
             ButtonState(true);
         }
@@ -287,7 +283,7 @@ namespace MyCompression
         {
             if (progressBar.InvokeRequired)
             {
-                progressBar.Invoke(SetValueDelegate,max);
+                progressBar.Invoke(_setValueDelegate,max);
             }
             else
             {
@@ -301,7 +297,7 @@ namespace MyCompression
 
             if (DeCompressBtn.InvokeRequired)
             {
-                DeCompressBtn.Invoke(SetButtonStateDelegate, state);
+                DeCompressBtn.Invoke(_setButtonStateDelegate, state);
             }
             else
             {
@@ -310,7 +306,7 @@ namespace MyCompression
 
             if (CompressBtn.InvokeRequired)
             {
-                CompressBtn.Invoke(SetButtonStateDelegate, state);
+                CompressBtn.Invoke(_setButtonStateDelegate, state);
             }
             else
             {
