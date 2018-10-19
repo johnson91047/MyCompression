@@ -46,7 +46,6 @@
             // 
             // SourceFilePathTextBox
             // 
-            this.SourceFilePathTextBox.Enabled = false;
             this.SourceFilePathTextBox.Location = new System.Drawing.Point(150, 100);
             this.SourceFilePathTextBox.Name = "SourceFilePathTextBox";
             this.SourceFilePathTextBox.Size = new System.Drawing.Size(419, 23);

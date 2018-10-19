@@ -11,7 +11,7 @@ namespace MyCompression
     {
         private string SourceFilePath
         {
-            get => SourceFilePathTextBox.Text;
+            get => Environment.ExpandEnvironmentVariables(SourceFilePathTextBox.Text);
             set => SourceFilePathTextBox.Text = value;
         }
 
@@ -270,6 +270,7 @@ namespace MyCompression
         {
             MessageBox.Show(@"工作完成!", @"成功", MessageBoxButtons.OK);
             progressBar.Value = 0;
+            SourceFilePath = string.Empty;
             ButtonState(true);
         }
 
