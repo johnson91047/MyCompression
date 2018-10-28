@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections;
+using System;
 
 namespace MyCompression
 {
@@ -27,6 +28,34 @@ namespace MyCompression
 
 
             return result.ToArray();
+        }
+
+        public static bool[] ByteToBoolArray(byte source)
+        {
+            bool[] result = new bool[8];
+
+            for (int i = 0; i < 8; i++)
+                result[i] = (source & (1 << i)) == 0 ? false : true;
+
+            Array.Reverse(result);
+
+            return result;
+        }
+
+        public static byte BoolArrayToByte(bool[] source)
+        {
+            byte result = 0;
+            int index = 8 - source.Length;
+
+            foreach (bool b in source)
+            {
+                if (b)
+                    result |= (byte)(1 << (7 - index));
+
+                index++;
+            }
+
+            return result;
         }
     }
 }

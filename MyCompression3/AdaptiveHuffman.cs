@@ -91,7 +91,7 @@ namespace MyCompression
             for(int i = 0; i < bits.Count; i++)
             {
 
-                // next byte is a raw data
+                // next byte is a raw data, this data is not in the tree so read next byte
                 if(_decodePointer == _nyt)
                 {
                     decodedContent.Add(bits[i]);
@@ -108,9 +108,11 @@ namespace MyCompression
                     continue;
                 }
 
+                // move pointer
                 _decodePointer = bits[i] ? _decodePointer.Left : _decodePointer.Right;
 
 
+                // found exist data
                 if((_decodePointer.Left == null || _decodePointer.Right == null)  && _decodePointer != _nyt)
                 {
                     result.Add(_decodePointer.Word);
@@ -165,11 +167,11 @@ namespace MyCompression
 
             _nyt.Left = newNYT;
             _nyt.Right = newNode;
-
             _nyt = newNYT;
 
             _nodes[newNYT.Number] = newNYT;
             _nodes[newNode.Number] = newNode;
+
             if(!_leaves.ContainsKey(word))
             {
                 _leaves.Add(word, newNode);
