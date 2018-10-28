@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdaptiveHuffman.cs" />
+    <Compile Include="DPCM.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>

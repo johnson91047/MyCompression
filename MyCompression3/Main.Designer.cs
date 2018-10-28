@@ -42,6 +42,7 @@
             this.metroLabel5 = new MetroFramework.Controls.MetroLabel();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.progressBar = new MetroFramework.Controls.MetroProgressBar();
+            this.UseDPCM = new MetroFramework.Controls.MetroCheckBox();
             this.SuspendLayout();
             // 
             // SourceFilePathTextBox
@@ -121,7 +122,7 @@
             // 
             // DeCompressBtn
             // 
-            this.DeCompressBtn.Location = new System.Drawing.Point(426, 285);
+            this.DeCompressBtn.Location = new System.Drawing.Point(426, 310);
             this.DeCompressBtn.Name = "DeCompressBtn";
             this.DeCompressBtn.Size = new System.Drawing.Size(109, 47);
             this.DeCompressBtn.TabIndex = 7;
@@ -131,7 +132,7 @@
             // 
             // CompressBtn
             // 
-            this.CompressBtn.Location = new System.Drawing.Point(541, 285);
+            this.CompressBtn.Location = new System.Drawing.Point(541, 310);
             this.CompressBtn.Name = "CompressBtn";
             this.CompressBtn.Size = new System.Drawing.Size(109, 47);
             this.CompressBtn.TabIndex = 8;
@@ -175,18 +176,31 @@
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(23, 303);
+            this.progressBar.Location = new System.Drawing.Point(23, 328);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(397, 29);
             this.progressBar.Style = MetroFramework.MetroColorStyle.Green;
             this.progressBar.TabIndex = 12;
             this.progressBar.Theme = MetroFramework.MetroThemeStyle.Dark;
             // 
+            // UseDPCM
+            // 
+            this.UseDPCM.AutoSize = true;
+            this.UseDPCM.FontSize = MetroFramework.MetroLinkSize.Medium;
+            this.UseDPCM.Location = new System.Drawing.Point(23, 283);
+            this.UseDPCM.Name = "UseDPCM";
+            this.UseDPCM.Size = new System.Drawing.Size(92, 19);
+            this.UseDPCM.TabIndex = 13;
+            this.UseDPCM.Text = "Use DPCM";
+            this.UseDPCM.Theme = MetroFramework.MetroThemeStyle.Dark;
+            this.UseDPCM.UseVisualStyleBackColor = true;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(672, 355);
+            this.ClientSize = new System.Drawing.Size(684, 380);
+            this.Controls.Add(this.UseDPCM);
             this.Controls.Add(this.progressBar);
             this.Controls.Add(this.metroLabel5);
             this.Controls.Add(this.metroLabel4);
@@ -226,6 +240,7 @@
         private MetroFramework.Controls.MetroLabel metroLabel5;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private MetroFramework.Controls.MetroProgressBar progressBar;
+        private MetroFramework.Controls.MetroCheckBox UseDPCM;
     }
 }
 

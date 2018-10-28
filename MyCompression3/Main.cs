@@ -219,12 +219,23 @@ namespace MyCompression
 
                 AdaptiveHuffman adaptiveHuffman = new AdaptiveHuffman();
                 byte[] contents = File.ReadAllBytes(SourceFilePath);
+                byte[] result;
+
 
                 SetProgressbar(contents.Length);
 
                 List<byte> writeBuffer = adaptiveHuffman.Decode(contents,_deCompressProcess);
 
-                File.WriteAllBytes(DeCompressDestinationFilePath, writeBuffer.ToArray());
+                if (UseDPCM.Checked)
+                {
+                    result = DPCM.ConvertFromDPCM(writeBuffer.ToArray());
+                }
+                else
+                {
+                    result = writeBuffer.ToArray();
+                }
+
+                File.WriteAllBytes(DeCompressDestinationFilePath, result);
 
             }
             catch (Exception e)
@@ -246,6 +257,11 @@ namespace MyCompression
                 List<bool> writeBuffer = new List<bool>();
                 byte[] contents = File.ReadAllBytes(SourceFilePath);
                 SetProgressbar(contents.Length);
+
+                if (UseDPCM.Checked)
+                {
+                    contents = DPCM.ConvertToDPCM(contents);
+                }
 
                 for (int i = 0; i < contents.Length; i++)
                 {
@@ -313,6 +329,8 @@ namespace MyCompression
                 CompressBtn.Enabled = state;
             }
         }
-        # endregion
+        #endregion
+
+
     }
 }
