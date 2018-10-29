@@ -43,6 +43,8 @@
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.progressBar = new MetroFramework.Controls.MetroProgressBar();
             this.UseDPCM = new MetroFramework.Controls.MetroCheckBox();
+            this.EntropyLabel = new MetroFramework.Controls.MetroLabel();
+            this.EntropyTextbox = new MetroFramework.Controls.MetroLabel();
             this.SuspendLayout();
             // 
             // SourceFilePathTextBox
@@ -122,7 +124,7 @@
             // 
             // DeCompressBtn
             // 
-            this.DeCompressBtn.Location = new System.Drawing.Point(426, 310);
+            this.DeCompressBtn.Location = new System.Drawing.Point(426, 367);
             this.DeCompressBtn.Name = "DeCompressBtn";
             this.DeCompressBtn.Size = new System.Drawing.Size(109, 47);
             this.DeCompressBtn.TabIndex = 7;
@@ -132,7 +134,7 @@
             // 
             // CompressBtn
             // 
-            this.CompressBtn.Location = new System.Drawing.Point(541, 310);
+            this.CompressBtn.Location = new System.Drawing.Point(541, 367);
             this.CompressBtn.Name = "CompressBtn";
             this.CompressBtn.Size = new System.Drawing.Size(109, 47);
             this.CompressBtn.TabIndex = 8;
@@ -176,7 +178,7 @@
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(23, 328);
+            this.progressBar.Location = new System.Drawing.Point(23, 385);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(397, 29);
             this.progressBar.Style = MetroFramework.MetroColorStyle.Green;
@@ -195,11 +197,33 @@
             this.UseDPCM.Theme = MetroFramework.MetroThemeStyle.Dark;
             this.UseDPCM.UseVisualStyleBackColor = true;
             // 
+            // EntropyLabel
+            // 
+            this.EntropyLabel.AutoSize = true;
+            this.EntropyLabel.Location = new System.Drawing.Point(23, 331);
+            this.EntropyLabel.Name = "EntropyLabel";
+            this.EntropyLabel.Size = new System.Drawing.Size(85, 19);
+            this.EntropyLabel.TabIndex = 14;
+            this.EntropyLabel.Text = "File Entropy :";
+            this.EntropyLabel.Theme = MetroFramework.MetroThemeStyle.Dark;
+            // 
+            // EntropyTextbox
+            // 
+            this.EntropyTextbox.AutoSize = true;
+            this.EntropyTextbox.Location = new System.Drawing.Point(114, 331);
+            this.EntropyTextbox.Name = "EntropyTextbox";
+            this.EntropyTextbox.Size = new System.Drawing.Size(0, 0);
+            this.EntropyTextbox.TabIndex = 15;
+            this.EntropyTextbox.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.EntropyTextbox.Theme = MetroFramework.MetroThemeStyle.Dark;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(684, 380);
+            this.ClientSize = new System.Drawing.Size(684, 437);
+            this.Controls.Add(this.EntropyTextbox);
+            this.Controls.Add(this.EntropyLabel);
             this.Controls.Add(this.UseDPCM);
             this.Controls.Add(this.progressBar);
             this.Controls.Add(this.metroLabel5);
@@ -241,6 +265,8 @@
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private MetroFramework.Controls.MetroProgressBar progressBar;
         private MetroFramework.Controls.MetroCheckBox UseDPCM;
+        private MetroFramework.Controls.MetroLabel EntropyLabel;
+        private MetroFramework.Controls.MetroLabel EntropyTextbox;
     }
 }
 

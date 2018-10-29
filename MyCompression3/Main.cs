@@ -27,6 +27,12 @@ namespace MyCompression
             set => FileNameTextBox.Text = value;
         }
 
+        private string EntropyText
+        {
+            get => EntropyTextbox.Text;
+            set => EntropyTextbox.Text = value;
+        }
+
         private const string MyExtension = ".mycom";
 
         private string CompressDestinationFilePath
@@ -71,8 +77,10 @@ namespace MyCompression
         //delegate for other process 
         private delegate void SetProgressBarValue(int max);
         private delegate void SetButtonState(bool state);
+        private delegate void SetEntropyText(string text);
         private readonly SetProgressBarValue _setValueDelegate;
         private readonly SetButtonState _setButtonStateDelegate;
+        private readonly SetEntropyText _setEntropyTextDelegate;
 
         public Main()
         {
@@ -93,6 +101,7 @@ namespace MyCompression
 
             _setValueDelegate += SetProgressbar;
             _setButtonStateDelegate += ButtonState;
+            _setEntropyTextDelegate += SetEntropyTextValue;
         }
 
         #region UI Events
@@ -263,6 +272,8 @@ namespace MyCompression
                     contents = DPCM.ConvertToDPCM(contents);
                 }
 
+                SetEntropyTextValue(EntropyCalculator.Calculate(contents).ToString());
+
                 for (int i = 0; i < contents.Length; i++)
                 {
                     bool[] code = adaptiveHuffman.Encode(contents[i]);
@@ -327,6 +338,18 @@ namespace MyCompression
             else
             {
                 CompressBtn.Enabled = state;
+            }
+        }
+
+        private void SetEntropyTextValue(string text)
+        {
+            if (EntropyTextbox.InvokeRequired)
+            {
+                EntropyTextbox.Invoke(_setEntropyTextDelegate, text);
+            }
+            else
+            {
+                EntropyTextbox.Text = text;
             }
         }
         #endregion
