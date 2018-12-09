@@ -33,7 +33,10 @@ namespace MyCompression
             set => EntropyTextbox.Text = value;
         }
 
-        private const string MyExtension = ".mycom";
+        private string MyExtension
+        {
+            get => metroTabControl1.SelectedTab.Text == "Huffman" ? ".mycom" : ".myJPEG";
+        }
 
         private string CompressDestinationFilePath
         {
@@ -218,7 +221,7 @@ namespace MyCompression
         }
 
         /// <summary>
-        /// do decoding
+        /// do huffman decoding
         /// </summary>
         private void DeCompress()
         {
@@ -255,7 +258,7 @@ namespace MyCompression
         }
 
         /// <summary>
-        /// do encoding
+        /// do huffman encoding
         /// </summary>
         private void Compress()
         {
@@ -352,8 +355,8 @@ namespace MyCompression
                 EntropyTextbox.Text = text;
             }
         }
-        #endregion
 
+        #endregion
 
     }
 }
