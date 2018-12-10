@@ -358,5 +358,22 @@ namespace MyCompression
 
         #endregion
 
+        private void JPEGCompressBtn_Click(object sender, EventArgs e)
+        {
+            JPEGAlgorithm jpeg = new JPEGAlgorithm();
+            var sources = File.ReadAllBytes(SourceFilePath);
+            int qf;
+            if(string.IsNullOrEmpty(QFTextBox.Text))
+            {
+                qf = 50;
+            }
+            else
+            {
+                qf = Convert.ToInt32(QFTextBox.Text);
+            }
+            byte[] result = Utility.BoolArrayToByteArray(jpeg.Encode(sources, qf));
+
+            File.WriteAllBytes(CompressDestinationFilePath, result);
+        }
     }
 }

@@ -47,12 +47,14 @@
             this.metroTabControl1 = new MetroFramework.Controls.MetroTabControl();
             this.metroTabPage1 = new MetroFramework.Controls.MetroTabPage();
             this.metroTabPage2 = new MetroFramework.Controls.MetroTabPage();
+            this.IsColorCheckBox = new MetroFramework.Controls.MetroCheckBox();
             this.JPEGCompressBtn = new MetroFramework.Controls.MetroButton();
             this.JPEGDecompressBtn = new MetroFramework.Controls.MetroButton();
             this.OpenDialogBtn2 = new MetroFramework.Controls.MetroButton();
             this.OpenFileDialogBtn = new MetroFramework.Controls.MetroButton();
             this.metroTextBox1 = new MetroFramework.Components.MetroStyleManager(this.components);
-            this.IsColorCheckBox = new MetroFramework.Controls.MetroCheckBox();
+            this.metroLabel6 = new MetroFramework.Controls.MetroLabel();
+            this.QFTextBox = new MetroFramework.Controls.MetroTextBox();
             this.metroTabControl1.SuspendLayout();
             this.metroTabPage1.SuspendLayout();
             this.metroTabPage2.SuspendLayout();
@@ -239,6 +241,8 @@
             // 
             // metroTabPage2
             // 
+            this.metroTabPage2.Controls.Add(this.metroLabel6);
+            this.metroTabPage2.Controls.Add(this.QFTextBox);
             this.metroTabPage2.Controls.Add(this.IsColorCheckBox);
             this.metroTabPage2.Controls.Add(this.JPEGCompressBtn);
             this.metroTabPage2.Controls.Add(this.JPEGDecompressBtn);
@@ -251,6 +255,18 @@
             this.metroTabPage2.Theme = MetroFramework.MetroThemeStyle.Dark;
             this.metroTabPage2.VerticalScrollbarBarColor = true;
             // 
+            // IsColorCheckBox
+            // 
+            this.IsColorCheckBox.AutoSize = true;
+            this.IsColorCheckBox.FontSize = MetroFramework.MetroLinkSize.Medium;
+            this.IsColorCheckBox.Location = new System.Drawing.Point(20, 72);
+            this.IsColorCheckBox.Name = "IsColorCheckBox";
+            this.IsColorCheckBox.Size = new System.Drawing.Size(87, 19);
+            this.IsColorCheckBox.TabIndex = 22;
+            this.IsColorCheckBox.Text = "Is Colored";
+            this.IsColorCheckBox.Theme = MetroFramework.MetroThemeStyle.Dark;
+            this.IsColorCheckBox.UseVisualStyleBackColor = true;
+            // 
             // JPEGCompressBtn
             // 
             this.JPEGCompressBtn.Location = new System.Drawing.Point(529, 104);
@@ -259,6 +275,7 @@
             this.JPEGCompressBtn.TabIndex = 21;
             this.JPEGCompressBtn.Text = "壓縮";
             this.JPEGCompressBtn.Theme = MetroFramework.MetroThemeStyle.Dark;
+            this.JPEGCompressBtn.Click += new System.EventHandler(this.JPEGCompressBtn_Click);
             // 
             // JPEGDecompressBtn
             // 
@@ -294,17 +311,25 @@
             this.metroTextBox1.Owner = null;
             this.metroTextBox1.Theme = MetroFramework.MetroThemeStyle.Dark;
             // 
-            // IsColorCheckBox
+            // metroLabel6
             // 
-            this.IsColorCheckBox.AutoSize = true;
-            this.IsColorCheckBox.FontSize = MetroFramework.MetroLinkSize.Medium;
-            this.IsColorCheckBox.Location = new System.Drawing.Point(15, 20);
-            this.IsColorCheckBox.Name = "IsColorCheckBox";
-            this.IsColorCheckBox.Size = new System.Drawing.Size(87, 19);
-            this.IsColorCheckBox.TabIndex = 22;
-            this.IsColorCheckBox.Text = "Is Colored";
-            this.IsColorCheckBox.Theme = MetroFramework.MetroThemeStyle.Dark;
-            this.IsColorCheckBox.UseVisualStyleBackColor = true;
+            this.metroLabel6.AutoSize = true;
+            this.metroLabel6.Location = new System.Drawing.Point(19, 30);
+            this.metroLabel6.Name = "metroLabel6";
+            this.metroLabel6.Size = new System.Drawing.Size(50, 19);
+            this.metroLabel6.TabIndex = 18;
+            this.metroLabel6.Text = "Quality";
+            this.metroLabel6.Theme = MetroFramework.MetroThemeStyle.Dark;
+            // 
+            // QFTextBox
+            // 
+            this.QFTextBox.CustomForeColor = true;
+            this.QFTextBox.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.QFTextBox.Location = new System.Drawing.Point(75, 29);
+            this.QFTextBox.Name = "QFTextBox";
+            this.QFTextBox.Size = new System.Drawing.Size(44, 23);
+            this.QFTextBox.TabIndex = 17;
+            this.QFTextBox.Theme = MetroFramework.MetroThemeStyle.Dark;
             // 
             // Main
             // 
@@ -364,6 +389,8 @@
         private MetroFramework.Controls.MetroButton JPEGDecompressBtn;
         private MetroFramework.Components.MetroStyleManager metroTextBox1;
         private MetroFramework.Controls.MetroCheckBox IsColorCheckBox;
+        private MetroFramework.Controls.MetroLabel metroLabel6;
+        private MetroFramework.Controls.MetroTextBox QFTextBox;
     }
 }
 

@@ -57,5 +57,28 @@ namespace MyCompression
 
             return result;
         }
+
+        public static bool[] StringToBoolArray(string source)
+        {
+            List<bool> result = new List<bool>();
+
+            foreach(char c in source)
+            {
+                result.Add(c == '1');
+            }
+
+            return result.ToArray();
+        }
+
+        public static string IntToBinaryString(int number, int numberOfDigit)
+        {
+            string result = Convert.ToString(number, 2);
+            if (result.Length < numberOfDigit)
+            {
+                result.PadLeft(numberOfDigit - result.Length, '0');
+            }
+
+            return result;
+        }
     }
 }
