@@ -284,7 +284,7 @@ namespace MyCompression
                     _compressProcess.ReportProgress(i);
                 }
 
-                File.WriteAllBytes(CompressDestinationFilePath, Utility.BoolArrayToByteArray(writeBuffer.ToArray()));
+                File.WriteAllBytes(CompressDestinationFilePath, Utility.BoolArrayToByteArrayInversed(writeBuffer.ToArray()));
 
             }
             catch (Exception e)
@@ -361,7 +361,7 @@ namespace MyCompression
         private void JPEGCompressBtn_Click(object sender, EventArgs e)
         {
             JPEGAlgorithm jpeg = new JPEGAlgorithm();
-            var sources = File.ReadAllBytes(SourceFilePath);
+            byte[] sources = File.ReadAllBytes(SourceFilePath);
             int qf;
             if(string.IsNullOrEmpty(QFTextBox.Text))
             {
@@ -374,6 +374,26 @@ namespace MyCompression
             byte[] result = Utility.BoolArrayToByteArray(jpeg.Encode(sources, qf));
 
             File.WriteAllBytes(CompressDestinationFilePath, result);
+        }
+
+        private void JPEGDecompressBtn_Click(object sender, EventArgs e)
+        {
+            JPEGAlgorithm jpeg = new JPEGAlgorithm();
+            int qf;
+            if (string.IsNullOrEmpty(QFTextBox.Text))
+            {
+                qf = 50;
+            }
+            else
+            {
+                qf = Convert.ToInt32(QFTextBox.Text);
+            }
+
+            byte[] source = File.ReadAllBytes(SourceFilePath);
+
+            byte[] result = jpeg.Decode(Utility.ByteArrayToString(source), qf);
+
+            File.WriteAllBytes(DeCompressDestinationFilePath, result);
         }
     }
 }

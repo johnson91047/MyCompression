@@ -98,7 +98,7 @@ namespace MyCompression
 
                     if(decodedContent.Count == Utility.ByteSize)
                     {
-                        byte decodedResult = Utility.BoolArrayToByteArray(decodedContent.ToArray())[0];
+                        byte decodedResult = Utility.BoolArrayToByteArrayInversed(decodedContent.ToArray())[0];
                         result.Add(decodedResult);
                         NewNode(decodedResult);
                         decodedContent.Clear();

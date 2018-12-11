@@ -1,11 +1,34 @@
 ﻿
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Windows.Forms;
 
 namespace MyCompression
 {
     public static class CodeWords
     {
+        static CodeWords()
+        {
+            // init ac hashtable
+            for (int i = 0; i < AcCategory.GetLength(0); i++)
+            {
+                for (int j = 0; j < AcCategory.GetLength(1); j++)
+                {
+                    if(string.IsNullOrEmpty(AcCategory[i, j])) continue;
+                    AcCategoryHashTable[AcCategory[i,j]] = new Tuple<int,int>(i,j);
+                }
+            }
+
+            // init dc hashtable
+            for (int i = 0; i < DcCategory.Length; i++)
+            {
+                DcCategoryHashTable[DcCategory[i]] = i;
+            }
+        }
+
         public class Range
         {
             public Range(int min, int max)
@@ -23,8 +46,7 @@ namespace MyCompression
             public readonly int Min;
         }
 
-        private static readonly string[,] acCategory = new [,]
-        {
+        public static readonly string[,] AcCategory = {
             {"1010", "00", "01", "100", "1011", "11010", "1111000", "11111000", "1111110110", "1111111110000010", "1111111110000011" },
             {"", "1100", "11011", "1111001", "111110110", "11111110110", "1111111110000100", "1111111110000101", "1111111110000110", "1111111110000111", "1111111110001000"}, 
             {"", "11100", "11111001", "1111110111", "111111110100", "1111111110001001", "1111111110001010", "1111111110001011", "1111111110001100", "1111111110001101", "1111111110001110"},
@@ -43,13 +65,26 @@ namespace MyCompression
             {"11111111001", "1111111111110101", "1111111111110110", "1111111111110111", "1111111111111000", "1111111111111001", "1111111111111010", "1111111111111011", "1111111111111100", "1111111111111101", "1111111111111110" }
         };
 
-        private static readonly string[] dcCategory = new[]
-        {
-            "00","010","011","100","101","110","1110","11110","111110","1111110","11111110","111111110"
+        public static readonly Hashtable AcCategoryHashTable = new Hashtable();
+
+        public static readonly string[] DcCategory= {
+            "00",
+            "010",
+            "011",
+            "100",
+            "101",
+            "110",
+            "1110",
+            "11110",
+            "111110",
+            "1111110",
+            "11111110",
+            "111111110",
         };
 
-        private static readonly Range[,] diffSSSS = new Range[,]
-        {
+        public static readonly Hashtable DcCategoryHashTable = new Hashtable();
+
+        public static readonly Range[,] DiffSSSS = {
             {new Range(0,0), new Range(0,0) },
             {new Range(-1,-1), new Range(1,1) },
             {new Range(-3,-2), new Range(2,3) },
@@ -61,9 +96,96 @@ namespace MyCompression
             {new Range(-255,-128), new Range(128,255) },
             {new Range(-511,-256), new Range(256,511) },
             {new Range(-1023,-512), new Range(512,1023) },
-            {new Range(-2047,-1024), new Range(1024,2047) },
+            {new Range(-2047,-1024), new Range(1024,2047) }
         };
 
+        /// <summary>
+        /// Construct RLE from code words
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static IEnumerable<RLEBlock> ReconstructRleBlocks (string source)
+        {
+            List<RLEBlock> result = new List<RLEBlock>();
+            RLEBlock block = null;
+            string temp = string.Empty;
+            bool isDc = true;
+            for (int i = 0; i < source.Length; i++)
+            {
+                // dc decode first
+                if (isDc)
+                {
+                    block = new RLEBlock();
+                    temp += source[i];
+                    string diff = string.Empty;
+                    if (DcCategoryHashTable.Contains(temp))
+                    {
+                        int category = Convert.ToInt32(DcCategoryHashTable[temp]);
+                        int nextBits = category == 0 ? 1 : category;
+                        for (int j = 1; j <= nextBits; j++)
+                        {
+                            diff += source[i + j];
+                        }
+
+                        i += category;
+
+                        DCElement dc;
+                        if (category == 0 && diff == "0")
+                        {
+                            dc = new DCElement(0);
+                        }
+                        else
+                        {
+                            dc = new DCElement(FindValue(category,diff));
+                        }
+
+                        block.DC = dc;
+                        isDc = false;
+                        temp = string.Empty;
+                    }
+                }
+                // then ac
+                else
+                {
+                    temp += source[i];
+                    if (AcCategoryHashTable.Contains(temp))
+                    {
+                        string value = string.Empty;
+                        Tuple<int, int> runSize = (Tuple<int, int>) AcCategoryHashTable[temp];
+
+                        if (runSize.Item1 == 0 && runSize.Item2 == 0)
+                        {
+                            i += 4;
+                            isDc = true;
+                            result.Add(block);
+                            temp = string.Empty;
+                            continue;
+                        }
+
+                        int category = runSize.Item2;
+                        int nextBits = category == 0 ? 1 : category;
+                        for (int j = 1; j <= nextBits; j++)
+                        {
+                            value += source[i + j];
+                        }
+
+                        i += category;
+
+                        ACElement ac = new ACElement(runSize.Item1, FindValue(runSize.Item2, value));
+                        block.ACs.Add(ac);
+                        temp = string.Empty;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Construct code word from RLE
+        /// </summary>
+        /// <param name="blocks"></param>
+        /// <returns></returns>
         public static IEnumerable<bool> ConstructCodeWord(List<RLEBlock> blocks)
         {
             string codeword = string.Empty;
@@ -75,10 +197,7 @@ namespace MyCompression
                 {
                     codeword += GetACCodeWord(ac.Length, ac.Value);
                 }
-                if(block.NeedEOB)
-                {
-                    codeword += "1010";
-                }
+                codeword += "1010";
             }
 
             return Utility.StringToBoolArray(codeword);
@@ -87,7 +206,7 @@ namespace MyCompression
         private static string GetACCodeWord(int run , int size)
         {
             string codeword = string.Empty;
-            codeword += acCategory[run, GetDiffCategory(size)];
+            codeword += AcCategory[run, GetDiffCategory(size)];
             codeword += GetDiffCode(size);
             return codeword;
         }
@@ -95,48 +214,50 @@ namespace MyCompression
         private static string GetDCCodeWord(int diff)
         {
             string codeword = string.Empty;
-            codeword += dcCategory[GetDiffCategory(diff)];
+            codeword += DcCategory[GetDiffCategory(diff)];
             codeword += GetDiffCode(diff);
-
             return codeword;
         }
 
         private static int GetDiffCategory(int value)
         {
-            string codeword = string.Empty;
-            int length = diffSSSS.GetLength(0);
-            for (int i = 0; i < length; i++)
-            {
-                if (diffSSSS[i, 0].IsInRange(value) || diffSSSS[i, 1].IsInRange(value))
-                {
-                    return i;
-                }
-            }
-
-            throw new Exception("invalid category");
+            return Convert.ToString(Math.Abs(value), 2).Length;
         }
 
         private static string GetDiffCode(int diff)
         {
             string codeword = string.Empty;
-            int length = diffSSSS.GetLength(0);
+            int length = DiffSSSS.GetLength(0);
             for (int i = 0; i < length; i++)
             {
-                if (diffSSSS[i, 0].IsInRange(diff))
+                if (DiffSSSS[i, 0].IsInRange(diff))
                 {
-                    int numdiff = diff - diffSSSS[i, 0].Min;
+                    int numdiff = diff - DiffSSSS[i, 0].Min;
                     codeword += Utility.IntToBinaryString(numdiff, i);
                     break;
                 }
 
-                if (diffSSSS[i, 1].IsInRange(diff))
+                if (DiffSSSS[i, 1].IsInRange(diff))
                 {
-                    int numdiff = diffSSSS[i, 1].Max - diff;
-                    codeword += Utility.IntToBinaryString(numdiff, i);
+                    codeword += Utility.IntToBinaryString(diff, i);
                     break;
                 }
             }
             return codeword;
         }
+
+        private static int FindValue(int category, string binaryString)
+        {
+            int value = Convert.ToInt32(binaryString, 2);
+            if (!DiffSSSS[category, 1].IsInRange(value))
+            {
+                // this means value is a negative number
+                int baseNumber = (int)(0 - Math.Pow(2,category));
+                return baseNumber + value;
+            }
+
+            return value;
+        }
+        
     }
 }
