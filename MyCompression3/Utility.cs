@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections;
 using System;
 
 namespace MyCompression
@@ -116,7 +115,7 @@ namespace MyCompression
             string result = Convert.ToString(number, 2);
             if (result.Length < numberOfDigit)
             {
-                result.PadLeft(numberOfDigit, '0');
+                result = result.PadLeft(numberOfDigit, '0');
             }
 
             return result;

@@ -76,6 +76,7 @@
     <Compile Include="RunLengthEncoder.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="CodeWords.cs" />
+    <Compile Include="ZigZagEncoder.cs" />
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
     </EmbeddedResource>

@@ -1,10 +1,6 @@
-﻿
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Windows.Forms;
 
 namespace MyCompression
 {
@@ -104,7 +100,7 @@ namespace MyCompression
         /// </summary>
         /// <param name="source"></param>
         /// <returns></returns>
-        public static IEnumerable<RLEBlock> ReconstructRleBlocks (string source)
+        public static List<RLEBlock> ReconstructRleBlocks (string source)
         {
             List<RLEBlock> result = new List<RLEBlock>();
             RLEBlock block = null;
@@ -115,7 +111,10 @@ namespace MyCompression
                 // dc decode first
                 if (isDc)
                 {
-                    block = new RLEBlock();
+                    if(block == null)
+                    {
+                        block = new RLEBlock();
+                    }
                     temp += source[i];
                     string diff = string.Empty;
                     if (DcCategoryHashTable.Contains(temp))
@@ -127,7 +126,7 @@ namespace MyCompression
                             diff += source[i + j];
                         }
 
-                        i += category;
+                        i += nextBits;
 
                         DCElement dc;
                         if (category == 0 && diff == "0")
@@ -136,7 +135,7 @@ namespace MyCompression
                         }
                         else
                         {
-                            dc = new DCElement(FindValue(category,diff));
+                            dc = new DCElement(FindDiffValue(category,diff));
                         }
 
                         block.DC = dc;
@@ -155,10 +154,10 @@ namespace MyCompression
 
                         if (runSize.Item1 == 0 && runSize.Item2 == 0)
                         {
-                            i += 4;
                             isDc = true;
                             result.Add(block);
                             temp = string.Empty;
+                            block = null;
                             continue;
                         }
 
@@ -169,9 +168,9 @@ namespace MyCompression
                             value += source[i + j];
                         }
 
-                        i += category;
+                        i += nextBits;
 
-                        ACElement ac = new ACElement(runSize.Item1, FindValue(runSize.Item2, value));
+                        ACElement ac = new ACElement(runSize.Item1, FindDiffValue(runSize.Item2, value));
                         block.ACs.Add(ac);
                         temp = string.Empty;
                     }
@@ -186,7 +185,7 @@ namespace MyCompression
         /// </summary>
         /// <param name="blocks"></param>
         /// <returns></returns>
-        public static IEnumerable<bool> ConstructCodeWord(List<RLEBlock> blocks)
+        public static bool[] ConstructCodeWord(List<RLEBlock> blocks)
         {
             string codeword = string.Empty;
             foreach(RLEBlock block in blocks)
@@ -203,59 +202,88 @@ namespace MyCompression
             return Utility.StringToBoolArray(codeword);
         }
 
+        /// <summary>
+        /// Construct code word for ac
+        /// </summary>
+        /// <param name="run"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
         private static string GetACCodeWord(int run , int size)
         {
             string codeword = string.Empty;
-            codeword += AcCategory[run, GetDiffCategory(size)];
-            codeword += GetDiffCode(size);
+            int category = GetDiffCategory(size);
+            codeword += AcCategory[run, category];
+            codeword += GetDiffCode(size, category);
             return codeword;
         }
 
+        /// <summary>
+        /// Construct code word for dc
+        /// </summary>
+        /// <param name="diff"></param>
+        /// <returns></returns>
         private static string GetDCCodeWord(int diff)
         {
             string codeword = string.Empty;
-            codeword += DcCategory[GetDiffCategory(diff)];
-            codeword += GetDiffCode(diff);
+            int category = GetDiffCategory(diff);
+            codeword += DcCategory[category];
+            codeword += GetDiffCode(diff, category);
             return codeword;
         }
 
+        /// <summary>
+        /// Get category by the number of bits
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         private static int GetDiffCategory(int value)
         {
-            return Convert.ToString(Math.Abs(value), 2).Length;
+            return value == 0 ? 0 : Convert.ToString(Math.Abs(value), 2).Length;
         }
 
-        private static string GetDiffCode(int diff)
+        /// <summary>
+        /// Get diff value code word
+        /// </summary>
+        /// <param name="diff"></param>
+        /// <param name="category"></param>
+        /// <returns></returns>
+        private static string GetDiffCode(int diff, int category)
         {
             string codeword = string.Empty;
             int length = DiffSSSS.GetLength(0);
-            for (int i = 0; i < length; i++)
+            if (DiffSSSS[category, 0].IsInRange(diff))
             {
-                if (DiffSSSS[i, 0].IsInRange(diff))
-                {
-                    int numdiff = diff - DiffSSSS[i, 0].Min;
-                    codeword += Utility.IntToBinaryString(numdiff, i);
-                    break;
-                }
-
-                if (DiffSSSS[i, 1].IsInRange(diff))
-                {
-                    codeword += Utility.IntToBinaryString(diff, i);
-                    break;
-                }
+                int numdiff = diff - DiffSSSS[category, 0].Min;
+                codeword += Utility.IntToBinaryString(numdiff, category);
+                return codeword;
             }
-            return codeword;
+
+            if (DiffSSSS[category, 1].IsInRange(diff))
+            {
+                codeword += Utility.IntToBinaryString(diff, category);
+                return codeword;
+            }
+
+            throw new Exception("wrong category " + diff + " " + category);
         }
 
-        private static int FindValue(int category, string binaryString)
+        /// <summary>
+        /// Reverse diff value from bits
+        /// </summary>
+        /// <param name="category"></param>
+        /// <param name="binaryString"></param>
+        /// <returns></returns>
+        private static int FindDiffValue(int category, string binaryString)
         {
             int value = Convert.ToInt32(binaryString, 2);
             if (!DiffSSSS[category, 1].IsInRange(value))
             {
-                // this means value is a negative number
-                int baseNumber = (int)(0 - Math.Pow(2,category));
+                // this means diff value is a negative number
+                int baseNumber = (int)(0 - Math.Pow(2,category)) + 1;
                 return baseNumber + value;
             }
 
+            // other wise return normal value
             return value;
         }
         

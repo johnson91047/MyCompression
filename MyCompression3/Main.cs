@@ -74,6 +74,19 @@ namespace MyCompression
             }
         }
 
+        private int Qf
+        {
+            get
+            {
+                if(string.IsNullOrEmpty(QFTextBox.Text))
+                {
+                    return 50;
+                }
+
+                return Convert.ToInt32(QFTextBox.Text);
+            }
+        }
+
         private readonly BackgroundWorker _compressProcess;
         private readonly BackgroundWorker _deCompressProcess;
 
@@ -362,16 +375,8 @@ namespace MyCompression
         {
             JPEGAlgorithm jpeg = new JPEGAlgorithm();
             byte[] sources = File.ReadAllBytes(SourceFilePath);
-            int qf;
-            if(string.IsNullOrEmpty(QFTextBox.Text))
-            {
-                qf = 50;
-            }
-            else
-            {
-                qf = Convert.ToInt32(QFTextBox.Text);
-            }
-            byte[] result = Utility.BoolArrayToByteArray(jpeg.Encode(sources, qf));
+         
+            byte[] result = jpeg.Encode(sources, Qf);
 
             File.WriteAllBytes(CompressDestinationFilePath, result);
         }
@@ -379,19 +384,10 @@ namespace MyCompression
         private void JPEGDecompressBtn_Click(object sender, EventArgs e)
         {
             JPEGAlgorithm jpeg = new JPEGAlgorithm();
-            int qf;
-            if (string.IsNullOrEmpty(QFTextBox.Text))
-            {
-                qf = 50;
-            }
-            else
-            {
-                qf = Convert.ToInt32(QFTextBox.Text);
-            }
 
             byte[] source = File.ReadAllBytes(SourceFilePath);
 
-            byte[] result = jpeg.Decode(Utility.ByteArrayToString(source), qf);
+            byte[] result = jpeg.Decode(Utility.ByteArrayToString(source), Qf);
 
             File.WriteAllBytes(DeCompressDestinationFilePath, result);
         }
