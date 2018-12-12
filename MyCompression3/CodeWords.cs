@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 
 namespace MyCompression
 {
@@ -187,19 +188,22 @@ namespace MyCompression
         /// <returns></returns>
         public static bool[] ConstructCodeWord(List<RLEBlock> blocks)
         {
-            string codeword = string.Empty;
-            foreach(RLEBlock block in blocks)
+            StringBuilder sb = new StringBuilder();
+            int i = 0;
+            foreach (RLEBlock block in blocks)
             {
+                
                 DCElement dc = block.DC;
-                codeword += GetDCCodeWord(dc.Diff);
+                sb.Append(GetDCCodeWord(dc.Diff));
                 foreach (ACElement ac in block.ACs)
                 {
-                    codeword += GetACCodeWord(ac.Length, ac.Value);
+                    sb.Append(GetACCodeWord(ac.Length, ac.Value));
                 }
-                codeword += "1010";
+                sb.Append("1010");
+                i++;
             }
 
-            return Utility.StringToBoolArray(codeword);
+            return Utility.StringToBoolArray(sb.ToString());
         }
 
         /// <summary>

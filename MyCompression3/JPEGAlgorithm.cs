@@ -8,8 +8,9 @@ namespace MyCompression
     {
         public static readonly int BlockSize = 8;
         public static readonly int ImageSize = 512;
-        public static readonly float Pi = 3.14159265f;
-        public static readonly float SqrtInverse = 1 / 1.41421356f;
+        public static readonly double Pi = Math.PI;
+        public static readonly double PiDivide2N = Pi / (BlockSize * 2);
+        public static readonly double SqrtInverse = 1 / Math.Sqrt(2);
 
         private readonly Matrix<double> _luminanceTable = Matrix<double>.Build.DenseOfArray(new double[,]
         {
@@ -99,7 +100,7 @@ namespace MyCompression
             // inverse RLE
             _quantizedBlocks = _rlEncoder.Decode(rleblocks);
 
-            // inverse quantization
+             //inverse quantization
             _quantizedBlocks.ForEach(quatizedBlock =>
             {
                 IQuantize(quatizedBlock,qf);
@@ -109,8 +110,7 @@ namespace MyCompression
             // inverse dct
             _dctedBlocks.ForEach(dctedBlocks =>
             {
-                var block = IDCT(dctedBlocks);
-                _blocks.Add(block);
+                _blocks.Add(IDCT(dctedBlocks));
             });
 
             // reconstruct image from blocks
@@ -119,14 +119,14 @@ namespace MyCompression
 
         private void Divide8x8Block(byte[] source)
         {
-            for (int i = 0; i < ImageSize; i += 8)
+            for (int i = 0; i < ImageSize; i += BlockSize)
             {
-                for (int j = 0; j < ImageSize; j += 8)
+                for (int j = 0; j < ImageSize; j += BlockSize)
                 {
                     Matrix<double> block = Matrix<double>.Build.Dense(BlockSize, BlockSize);
-                    for (int startj = 0; startj < BlockSize; startj++)
+                    for (int starti = 0; starti < BlockSize; starti++)
                     {
-                        for (int starti = 0; starti < BlockSize; starti++)
+                        for (int startj = 0; startj < BlockSize; startj++)
                         {
                             block[starti, startj] = Convert.ToDouble(source[(i + starti) * (ImageSize) + (j + startj)]);
                         }
@@ -141,9 +141,9 @@ namespace MyCompression
             Matrix<double> image = Matrix<double>.Build.Dense(ImageSize, ImageSize);
             List<byte> result = new List<byte>();
             int numOfBlocks = 0;
-            for (int i = 0; i < ImageSize; i += 8)
+            for (int i = 0; i < ImageSize; i += BlockSize)
             {
-                for (int j = 0; j < ImageSize; j += 8)
+                for (int j = 0; j < ImageSize; j += BlockSize)
                 {
                     for (int starti = 0; starti < BlockSize; starti++)
                     {
@@ -159,7 +159,8 @@ namespace MyCompression
 
             foreach (double d in image.ToRowMajorArray())
             {
-                result.Add(Convert.ToByte((int)d));
+                double data = Clamp(d);
+                result.Add(Convert.ToByte((int)data));
             }
 
             return result.ToArray();
@@ -175,21 +176,19 @@ namespace MyCompression
         {
             Matrix<double> result = Matrix<double>.Build.Dense(BlockSize,BlockSize);
             source = source.Subtract(128);
-            for(int v = 0; v < BlockSize; v++)
+            for(int x = 0; x < BlockSize; x++)
             {
-                for( int u = 0; u <　BlockSize; u++)
+                for( int y = 0; y <　BlockSize; y++)
                 {
-                    double sourceData = 0;
-                    for(int y = 0; y < BlockSize; y++)
-                    {
-                        for (int x = 0; x < BlockSize; x++)
+                    double dctedData = 0;
+                    for (int u = 0; u < BlockSize; u++)
+                    {         
+                        for (int v = 0; v < BlockSize; v++)
                         {
-                            sourceData += source[y,x] * Math.Cos(((2 * x + 1) * u * Pi) / 16) * Math.Cos(((2 * y + 1) * v * Pi) / 16);
+                            dctedData += source[u,v] * Math.Cos((2 * x + 1) * u * PiDivide2N) * Math.Cos((2 * y + 1) * v * PiDivide2N );
                         }
                     }
-                    double dctData = C(v) * C(u) * sourceData * 0.25;
-
-                    result[v, u] = Math.Round(dctData);
+                    result[x, y] = Math.Round(C(x) * C(y) * 0.25f * dctedData);
                 }
             }
 
@@ -204,20 +203,20 @@ namespace MyCompression
             {
                 for (int x = 0; x < BlockSize; x++)
                 {
-                    double sourceData = 0;
+                    double idctedData = 0;
                     for (int v = 0; v < BlockSize; v++)
                     {
                         for (int u = 0; u < BlockSize; u++)
                         {
-                            sourceData += 0.25 * C(u) * C(v) * source[v, u] * Math.Cos(((2 * v + 1) * y * Pi) / 16) * Math.Cos(((2 * u + 1) * x * Pi) / 16);
+                            idctedData += C(u) * C(v) * source[v,u] * Math.Cos((2 * x + 1) * u * PiDivide2N) * Math.Cos((2 * y + 1) * v * PiDivide2N);
                         }
                     }
-                    result[y, x] = Math.Round(sourceData );
+
+                    result[y, x] = Math.Round(0.25f * idctedData);
                 }
             }
 
             result = result.Add(128);
-            ClampMatrix(result);
 
             return result;
         }
@@ -260,15 +259,11 @@ namespace MyCompression
             return factor / 100;
         }
 
-        private void ClampMatrix(Matrix<double> matrix)
+        private double Clamp(double number)
         {
-            for (int i = 0; i < BlockSize; i++)
-            {
-                for (int j = 0; j < BlockSize; j++)
-                {
-                    matrix[i, j] = matrix[i, j] < 0 ? 0 : (matrix[i, j] > 255 ? 255 : matrix[i, j]);
-                }
-            }
+            if (number < 0) return 0;
+            if (number > 255) return 255;
+            return number;
         }
     }
 }

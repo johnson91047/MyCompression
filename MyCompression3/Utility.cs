@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System;
+using System.Text;
 
 namespace MyCompression
 {
@@ -94,7 +95,7 @@ namespace MyCompression
 
         public static string ByteArrayToString(byte[] source)
         {
-            string result = string.Empty;
+            StringBuilder sb = new StringBuilder();
             foreach (byte b in source)
             {
                 string temp = Convert.ToString(b, 2);
@@ -103,15 +104,16 @@ namespace MyCompression
                     temp = temp.PadLeft(ByteSize, '0');
                 }
 
-                result += temp;
+                sb.Append(temp);
             }
 
-            return result;
+            return sb.ToString();
         }
 
 
         public static string IntToBinaryString(int number, int numberOfDigit)
         {
+            numberOfDigit = numberOfDigit == 0 ? 1 : numberOfDigit;
             string result = Convert.ToString(number, 2);
             if (result.Length < numberOfDigit)
             {
