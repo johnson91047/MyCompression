@@ -379,6 +379,8 @@ namespace MyCompression
             byte[] result = jpeg.Encode(sources, Qf);
 
             File.WriteAllBytes(CompressDestinationFilePath, result);
+
+            MessageBox.Show(@"工作完成!", @"成功", MessageBoxButtons.OK);
         }
 
         private void JPEGDecompressBtn_Click(object sender, EventArgs e)
@@ -390,6 +392,8 @@ namespace MyCompression
             byte[] result = jpeg.Decode(Utility.ByteArrayToString(source), Qf);
 
             File.WriteAllBytes(DeCompressDestinationFilePath, result);
+
+            MessageBox.Show(@"工作完成!", @"成功", MessageBoxButtons.OK);
         }
     }
 }

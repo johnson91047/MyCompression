@@ -107,8 +107,14 @@ namespace MyCompression
             RLEBlock block = null;
             string temp = string.Empty;
             bool isDc = true;
+            int expectBlockCount = Convert.ToInt32(Math.Pow(JPEGAlgorithm.ImageSize, 2) / Math.Pow(JPEGAlgorithm.BlockSize, 2));
             for (int i = 0; i < source.Length; i++)
             {
+                if(result.Count == expectBlockCount)
+                {
+                    break;
+                }
+
                 // dc decode first
                 if (isDc)
                 {

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using MathNet.Numerics.LinearAlgebra;
 
@@ -57,11 +58,12 @@ namespace MyCompression
         {
             List<RLEBlock> blocks = new List<RLEBlock>();
             int lastesrDC = 0;
+            int run = 0;
             foreach(Matrix<double> matrix in source)
             {
+                run = 0;
                 List<double> list = ZigZagEncoder.ZigZag(matrix);
                 List<ACElement> acs = new List<ACElement>();
-                int run = 0;
                 int diff = (int)list[0] - lastesrDC;
                 lastesrDC = (int)list[0];
                 DCElement dc = new DCElement(diff);
@@ -84,6 +86,7 @@ namespace MyCompression
                             }
                         }
                         acs.Add(new ACElement(run, (int)data));
+                        run = 0;
                     }
                 }
                 blocks.Add(new RLEBlock(dc, acs));
@@ -106,7 +109,7 @@ namespace MyCompression
                 List<double> array = new List<double>();
                 DCElement dc = rleBlock.DC;
                 array.Add(dc.Diff+latestDc);
-                latestDc = dc.Diff;
+                latestDc = dc.Diff + latestDc;
 
                 foreach (ACElement ac in rleBlock.ACs)
                 {
