@@ -395,5 +395,22 @@ namespace MyCompression
 
             MessageBox.Show(@"工作完成!", @"成功", MessageBoxButtons.OK);
         }
+
+        private void OpenPSNRSourceBtn_Click(object sender, EventArgs e)
+        {
+            PSNRSourcePathTextBox.Text = OpenFile();
+        }
+
+        private void OpenPSNRTargetBtn_Click(object sender, EventArgs e)
+        {
+            PSNRTargetPathTextBox.Text = OpenFile();
+        }
+
+        private void CalculateBtn_Click(object sender, EventArgs e)
+        {
+            byte[] source = File.ReadAllBytes(PSNRSourcePathTextBox.Text);
+            byte[] target = File.ReadAllBytes(PSNRTargetPathTextBox.Text);
+            PSNRValueLabel.Text = PSNRCalculator.Calculate(source, target).ToString();
+        }
     }
 }
