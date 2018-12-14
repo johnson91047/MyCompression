@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdaptiveHuffman.cs" />
+    <Compile Include="CodeWordEncoder.cs" />
     <Compile Include="DPCM.cs" />
     <Compile Include="EntropyCalculator.cs" />
     <Compile Include="JPEGAlgorithm.cs" />
@@ -87,7 +88,6 @@
     <Compile Include="PSNRCalculator.cs" />
     <Compile Include="RunLengthEncoder.cs" />
     <Compile Include="Utility.cs" />
-    <Compile Include="CodeWords.cs" />
     <Compile Include="ZigZagEncoder.cs" />
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>

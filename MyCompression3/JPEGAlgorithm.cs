@@ -84,7 +84,7 @@ namespace MyCompression
             List<RLEBlock> rleBlocks = _rlEncoder.Encode(_quantizedBlocks);
 
             // construct code word by RLE
-            return Utility.BoolArrayToByteArray(CodeWords.ConstructCodeWord(rleBlocks));
+            return Utility.BoolArrayToByteArray(CodeWordEncoder.ConstructCodeWord(rleBlocks));
 
         }
 
@@ -101,7 +101,7 @@ namespace MyCompression
             _quantizedBlocks.Clear();
 
             // construct RLE blocks
-            List<RLEBlock> rleblocks = CodeWords.ReconstructRleBlocks(source);
+            List<RLEBlock> rleblocks = CodeWordEncoder.ReconstructRleBlocks(source);
 
             // inverse RLE
             _quantizedBlocks = _rlEncoder.Decode(rleblocks);
